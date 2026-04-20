@@ -42,24 +42,23 @@ GS_TEX1 = bytes([0x6c, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
 # ------------------------------
 # Constants for PSM header
 # ------------------------------
-PS2S_HEADER_SIZE        = 0x70
+PS2S_HEADER_SIZE        = 0x90
 OFFSET_MAGIC            = 0x00  # 4 bytes  - "PS2S"
 OFFSET_VERSION          = 0x04  # 2 bytes  - Format version
 OFFSET_FLAGS            = 0x06  # 2 bytes  - Flags (usually 0)
 OFFSET_DATA_OFFSET      = 0x08  # 4 bytes  - Offset to MPEG stream
 OFFSET_FIELD_COUNT      = 0x0C  # 4 bytes  - Observed constant (0x04)
-OFFSET_INTERNAL_OFFSET  = 0x10  # 4 bytes  - Observed constant (0x18)
+OFFSET_INTERNAL_OFFSET  = 0x10  # 4 bytes  - maximum title length (in bytes) that PSBBN will read/display from the title field
 OFFSET_TITLE_POINTER    = 0x14  # 4 bytes  - Offset to title (0x50)
 OFFSET_THUMB_SIZE       = 0x40  # 4 bytes  - Thumbnail size
 OFFSET_THUMB_OFFSET     = 0x44  # 4 bytes  - Thumbnail offset
-OFFSET_TITLE            = 0x50  # 32 bytes - Title (Shift-JIS)
-
-TITLE_MAX_LEN           = 0x20
+OFFSET_TITLE            = 0x50  # Title starts here (UTF-8)
+TITLE_MAX_LEN           = 0x40  # 64 bytes - Title (UTF-8)
 
 PS2S_VERSION            = 0x0100
 PS2S_FLAGS              = 0x0000
 PS2S_FIELD_COUNT        = 0x00000004
-PS2S_INTERNAL_OFFSET    = 0x00000018
+PS2S_INTERNAL_OFFSET    = 0x00000040
 PS2S_TITLE_POINTER      = OFFSET_TITLE
 
 # ==============================
@@ -149,10 +148,10 @@ def png_to_tm2(png_path):
 def align16(value):
     return (value + 15) & ~15
 
-def truncate_shift_jis_safe(text, max_bytes):
+def truncate_utf8_safe(text, max_bytes):
     encoded = bytearray()
     for ch in text:
-        ch_bytes = ch.encode("shift_jis", errors="ignore")
+        ch_bytes = ch.encode("utf-8", errors="ignore")
         if len(encoded) + len(ch_bytes) > max_bytes:
             break
         encoded.extend(ch_bytes)
@@ -160,18 +159,27 @@ def truncate_shift_jis_safe(text, max_bytes):
 
 def build_psm_header(thumb_size, thumb_offset, data_offset, title_text):
     header = bytearray(PS2S_HEADER_SIZE)
+
+    # Magic & version
     header[OFFSET_MAGIC:OFFSET_MAGIC+4] = b"PS2S"
     struct.pack_into("<H", header, OFFSET_VERSION, PS2S_VERSION)
     struct.pack_into("<H", header, OFFSET_FLAGS, PS2S_FLAGS)
+
+    # Standard fields
     struct.pack_into("<I", header, OFFSET_DATA_OFFSET, data_offset)
     struct.pack_into("<I", header, OFFSET_FIELD_COUNT, PS2S_FIELD_COUNT)
     struct.pack_into("<I", header, OFFSET_INTERNAL_OFFSET, PS2S_INTERNAL_OFFSET)
     struct.pack_into("<I", header, OFFSET_TITLE_POINTER, PS2S_TITLE_POINTER)
+
+    # Thumbnail
     struct.pack_into("<I", header, OFFSET_THUMB_SIZE, thumb_size)
     struct.pack_into("<I", header, OFFSET_THUMB_OFFSET, thumb_offset)
-    safe_title = truncate_shift_jis_safe(title_text, TITLE_MAX_LEN - 1)
+
+    # Title (UTF-8)
+    safe_title = truncate_utf8_safe(title_text, TITLE_MAX_LEN - 1)
     header[OFFSET_TITLE:OFFSET_TITLE + TITLE_MAX_LEN] = b"\x00" * TITLE_MAX_LEN
     header[OFFSET_TITLE:OFFSET_TITLE + len(safe_title)] = safe_title
+
     return header
 
 def build_psm(pss_file, png_file, output_file, title_text):
@@ -186,17 +194,17 @@ def build_psm(pss_file, png_file, output_file, title_text):
     if mpeg_data[0:4] != b"\x00\x00\x01\xBA":
         raise ValueError("PSS file not valid MPEG-PS!")
 
-    # Compute layout
-    thumb_size = len(tm2_data)
+    # Offsets
     thumb_offset = PS2S_HEADER_SIZE
-    raw_end = PS2S_HEADER_SIZE + thumb_size
-    aligned_end = align16(raw_end)
-    padding_size = aligned_end - raw_end
+    raw_end = thumb_offset + len(tm2_data)
+    data_offset = align16(raw_end)
+    padding_size = data_offset - raw_end
 
+    # Build header
     header = build_psm_header(
-        thumb_size=thumb_size,
+        thumb_size=len(tm2_data),
         thumb_offset=thumb_offset,
-        data_offset=aligned_end,
+        data_offset=data_offset,
         title_text=title_text
     )
 
@@ -213,15 +221,15 @@ def build_psm(pss_file, png_file, output_file, title_text):
 # Main entry
 # ------------------------------
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print("Usage: python3 psmbuild.py <input.pss> <input.png> <output.psm>")
+    if len(sys.argv) != 5:
+        print("Usage: python3 psmbuild.py <input.pss> <input.png> <output.psm> <title>")
         sys.exit(1)
 
     pss_file = sys.argv[1]
     png_file = sys.argv[2]
     output_file = sys.argv[3]
+    title_text = sys.argv[4]
 
     print(f"Creating {os.path.basename(output_file)}...", end="", flush=True)
-    # Title derived from output filename without extension
-    title = output_file.rsplit(".", 1)[0]
-    build_psm(pss_file, png_file, output_file, title_text=title)
+
+    build_psm(pss_file, png_file, output_file, title_text)

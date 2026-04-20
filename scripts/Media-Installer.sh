@@ -846,7 +846,6 @@ EOF
       BAT_FILE="${TMP_DIR}/${file_name}.bat"
       thumbnail="${TMP_DIR}/${file_name}.png"
       movie_title="${base//_/ }" # replace underscores with spaces
-      movie_title="${movie_title//\'/\'\'}"
       database_file="${file_name//\'/\'\'}"
 
       # Skip if .psm already exists
@@ -1099,7 +1098,7 @@ EOF
 
         if [ -f "$pss" ] && [ -f "$thumbnail" ]; then
           echo
-          if ! python3 "${HELPER_DIR}/psmbuild.py" "$pss" "$thumbnail" "$psm" 2>> "${LOG_FILE}"; then
+          if ! python3 "${HELPER_DIR}/psmbuild.py" "$pss" "$thumbnail" "$psm" "$base" 2>> "${LOG_FILE}"; then
             echo
             echo "Warning: Skipping video - Failed to create $psm" | tee -a "${LOG_FILE}"
             failure=1
@@ -1120,6 +1119,21 @@ EOF
       if [[ $f == *.psm || $f == *.PSM ]]; then
         echo
         echo -n "Copying $file_name.psm..."
+
+        #extract title from header
+        psm_title=$(
+          tail -c +$((0x50 + 1)) "$f" |
+          head -c $(( $(grep -abo $'TIM2\x04' "$f" | head -n1 | cut -d: -f1) - 0x50 )) |
+          tr -d '\000'
+        )
+
+        # Validate UTF-8; fallback to filename if invalid
+        if printf '%s' "$psm_title" | iconv -f UTF-8 -t UTF-8 >/dev/null 2>&1 && [ -n "$psm_title" ]; then
+          movie_title="$psm_title"
+        fi
+
+        echo "PSM Movie Title: $movie_title" >> "${LOG_FILE}"
+
         if ! cp -f "$f" "${STORAGE_DIR}/__contents/contents/video/${MOVIE_DIR}/${database_file}.psm" 2>> "${LOG_FILE}"; then
           echo
           echo "Warning: Skipping video - Failed to copy $f"| tee -a "${LOG_FILE}"
@@ -1131,6 +1145,7 @@ EOF
       fi
 
       if [ -f "${STORAGE_DIR}/__contents/contents/video/${MOVIE_DIR}/${database_file}.psm" ]; then
+        movie_title="${movie_title//\'/\'\'}"
         sed -i "/^COMMIT;/i INSERT INTO sce_movie VALUES('${movie_title}','Your Movies',${MOVIE_DIR},'pfs:/__contents/contents/video/${MOVIE_DIR}/${database_file}.psm','Your Moviespfs:/__contents/contents/video/${MOVIE_DIR}',260,0,0,512);" "${SQL_FILE}" >> "${LOG_FILE}" 2>&1
       fi
 

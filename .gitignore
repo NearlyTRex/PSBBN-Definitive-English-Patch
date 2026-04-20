@@ -51,6 +51,8 @@ logs/
 *.m2ts
 *.mts
 *.ogv
+*.pss
+*.psm
 *.jpg
 *.jpeg
 *.tif
