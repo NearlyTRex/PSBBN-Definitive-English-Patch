@@ -242,19 +242,23 @@ clean_up() {
     sudo umount -l "${OPL}" >> "${LOG_FILE}" 2>&1
     sudo rm -rf "$TMP_DIR"
 
-    submounts=$(findmnt -nr -o TARGET | grep "^${STORAGE_DIR}/" | sort -r)
-
-    if [ -n "$submounts" ]; then
-        echo "Found mounts under ${STORAGE_DIR}, attempting to unmount..." >> "$LOG_FILE"
-        while read -r mnt; do
-            [ -z "$mnt" ] && continue
-            echo "Unmounting $mnt..." >> "$LOG_FILE"
-            sudo umount -l "$mnt" >> "${LOG_FILE}" 2>&1 || failure=1
-        done <<< "$submounts"
-    fi
+    findmnt -nr -o TARGET | sed 's/\\x20/ /g' | while IFS= read -r line; do
+        case "$line" in
+            "$STORAGE_DIR/"*)
+                echo "Unmounting: <$line>" >> "$LOG_FILE"
+                sudo umount "$line" || error_msg "Error" "Failed to unmount $line"
+                ;;
+        esac
+    done
 
     if [ -d "${STORAGE_DIR}" ]; then
-    submounts=$(findmnt -nr -o TARGET | grep "^${STORAGE_DIR}/" | sort -r)
+        submounts=$(
+            findmnt -nr -o TARGET \
+            | sed 's/\\x20/ /g' \
+            | grep "^${STORAGE_DIR}/" \
+            | sort -r
+        )
+
         if [ -z "$submounts" ]; then
             echo "Deleting ${STORAGE_DIR}..." >> "$LOG_FILE"
             sudo rm -rf "${STORAGE_DIR}" || { echo "[X] Error: Failed to delete ${STORAGE_DIR}" >> "$LOG_FILE"; failure=1; }

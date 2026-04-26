@@ -383,22 +383,24 @@ get_latest_file() {
 }
 
 UNMOUNT_ALL() {
-    # Find all mounted volumes associated with the device
-    mounted_volumes=$(lsblk -ln -o MOUNTPOINT "$DEVICE" | grep -v "^$")
+    while IFS= read -r mount_point; do
+        [[ -z "$mount_point" ]] && continue
 
-    # Iterate through each mounted volume and unmount it
-    for mount_point in $mounted_volumes; do
-        sudo umount "$mount_point" 2>&1
+        echo "Unmounting $mount_point..." >> "${LOG_FILE}"
+
+        sudo umount -- "$mount_point" \
+            && echo "[✓] Successfully unmounted $mount_point." >> "${LOG_FILE}" \
+            || error_msg "Failed to unmount $mount_point. Please unmount manually."
+    done < <(lsblk -ln -o MOUNTPOINT "$DEVICE")
+
+    findmnt -nr -o TARGET | sed 's/\\x20/ /g' | while IFS= read -r line; do
+        case "$line" in
+            "$STORAGE_DIR/"*)
+                echo "Unmounting: <$line>" >> "$LOG_FILE"
+                sudo umount "$line" || error_msg "Error" "Failed to unmount $line"
+                ;;
+        esac
     done
-
-    submounts=$(findmnt -nr -o TARGET | grep "^${STORAGE_DIR}/" | sort -r)
-
-    if [ -n "$submounts" ]; then
-        while read -r mnt; do
-            [ -z "$mnt" ] && continue
-            sudo umount "$mnt" 2>&1
-        done <<< "$submounts"
-    fi
 
     # Get the device basename
     DEVICE_CUT=$(basename "$DEVICE")

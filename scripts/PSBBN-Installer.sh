@@ -167,7 +167,12 @@ clean_up() {
     failure=0
 
     if [ -d "${STORAGE_DIR}" ]; then
-        submounts=$(findmnt -nr -o TARGET | grep "^${STORAGE_DIR}/")
+        submounts=$(
+            findmnt -nr -o TARGET \
+            | sed 's/\\x20/ /g' \
+            | grep "^${STORAGE_DIR}/" \
+            | sort -r
+        )
 
         if [ -z "$submounts" ]; then
             echo "Deleting ${STORAGE_DIR}..." >> "$LOG_FILE"
@@ -484,30 +489,24 @@ CHECK_OS() {
 }
 
 UNMOUNT_ALL() {
-    # Find all mounted volumes associated with the device
-    mounted_volumes=$(lsblk -ln -o MOUNTPOINT "$DEVICE" | grep -v "^$")
+    while IFS= read -r mount_point; do
+        [[ -z "$mount_point" ]] && continue
 
-    # Iterate through each mounted volume and unmount it
-    echo "Unmounting volumes associated with $DEVICE..." >> "${LOG_FILE}"
-    for mount_point in $mounted_volumes; do
         echo "Unmounting $mount_point..." >> "${LOG_FILE}"
-        if sudo umount "$mount_point"; then
-            echo "[✓] Successfully unmounted $mount_point." >> "${LOG_FILE}"
-        else
-            error_msg "Failed to unmount $mount_point. Please unmount manually."
-        fi
+
+        sudo umount -- "$mount_point" \
+            && echo "[✓] Successfully unmounted $mount_point." >> "${LOG_FILE}" \
+            || error_msg "Failed to unmount $mount_point. Please unmount manually."
+    done < <(lsblk -ln -o MOUNTPOINT "$DEVICE")
+
+    findmnt -nr -o TARGET | sed 's/\\x20/ /g' | while IFS= read -r line; do
+        case "$line" in
+            "$STORAGE_DIR/"*)
+                echo "Unmounting: <$line>" >> "$LOG_FILE"
+                sudo umount "$line" || error_msg "Error" "Failed to unmount $line"
+                ;;
+        esac
     done
-
-    submounts=$(findmnt -nr -o TARGET | grep "^${STORAGE_DIR}/" | sort -r)
-
-    if [ -n "$submounts" ]; then
-        echo "Found mounts under ${STORAGE_DIR}, attempting to unmount..." >> "$LOG_FILE"
-        while read -r mnt; do
-            [ -z "$mnt" ] && continue
-            echo "Unmounting $mnt..." >> "$LOG_FILE"
-            sudo umount "$mnt" || error_msg "Error" "Failed to unmount $mnt"
-        done <<< "$submounts"
-    fi
 
     # Get the device basename
     DEVICE_CUT=$(basename "$DEVICE")

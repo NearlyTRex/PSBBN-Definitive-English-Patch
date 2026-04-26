@@ -170,7 +170,12 @@ clean_up() {
     unmount_apa
 
     if [ -d "${STORAGE_DIR}" ]; then
-        submounts=$(findmnt -nr -o TARGET | grep "^${STORAGE_DIR}/")
+        submounts=$(
+            findmnt -nr -o TARGET \
+            | sed 's/\\x20/ /g' \
+            | grep "^${STORAGE_DIR}/" \
+            | sort -r
+        )
 
         if [ -z "$submounts" ]; then
             echo "Deleting ${STORAGE_DIR}..." >> "$LOG_FILE"
@@ -1381,16 +1386,14 @@ mount_pfs() {
 unmount_apa(){
 # Unmount if mounted
     # Get all mounts under STORAGE_DIR
-    submounts=$(findmnt -nr -o TARGET | grep "^${STORAGE_DIR}/" | sort -r)
-
-    if [ -n "$submounts" ]; then
-        echo "Found mounts under ${STORAGE_DIR}, attempting to unmount..." >> "$LOG_FILE"
-        while read -r mnt; do
-            [ -z "$mnt" ] && continue
-            echo "Unmounting $mnt..." >> "$LOG_FILE"
-            sudo umount "$mnt" || error_msg "Error" "Failed to unmount $mnt"
-        done <<< "$submounts"
-    fi
+    findmnt -nr -o TARGET | sed 's/\\x20/ /g' | while IFS= read -r line; do
+        case "$line" in
+            "$STORAGE_DIR/"*)
+                echo "Unmounting: <$line>" >> "$LOG_FILE"
+                sudo umount "$line" || error_msg "Error" "Failed to unmount $line"
+                ;;
+        esac
+    done
 
     # Get the device basename
     DEVICE_CUT=$(basename "$DEVICE")
