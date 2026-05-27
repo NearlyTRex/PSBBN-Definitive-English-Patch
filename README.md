@@ -1050,9 +1050,8 @@ To display the games list in OPL, adjust the following settings:
 4. Settings > Save Changes
 
 If games do not appear in the games list in [NHDDL](#nhddl) or [OPL](#open-ps2-loader-opl) (after modifying the OPL settings as described above):
-1. Try connecting the PS2 drive directly to your PC using an internal SATA connection or a USB port directly on the motherboard, avoid using add-on cards. Then reinstall [PSBBN](#install-psbbn-and-hosdmenu) or [HOSDMenu](#install-hosdmenu-only)
+1. Try connecting the PS2 drive directly to your PC using an internal SATA connection or a different SATA to USB adapter. Then reinstall [PSBBN](#install-psbbn-and-hosdmenu) or [HOSDMenu](#install-hosdmenu-only)
 2. Try using a different drive and then reinstall [PSBBN](#install-psbbn-and-hosdmenu) or [HOSDMenu](#install-hosdmenu-only)
-
 
 If games fail to launch from the [PSBBN Game Collection](#game-collection) or [HOSDMenu](#HOSDMenu), try the following:
 1. If you have a [mod chip](#known-issues), disable it
@@ -1207,7 +1206,7 @@ Disable DNAS Authentication:
 
 # Credits
 - PSBBN Definitive Project - Copyright © 2024-2026 by [CosmicScale](https://github.com/CosmicScale)
-- `PSBBN-Definitive-Patch.sh`, `Setup.sh`, `PSBBN-Installer.sh`, `HOSDMenu-Installer.sh`, `Game-Installer.sh`, `Media-Installer.sh`, `music-installer.py`, `psmbuild.py`, `Extras.sh`, `art_downloader.py`, `list-builder.py`, `list-sorter.py`, `txt_to_icon_sys.py`, `ps2iconmaker.sh`, `AppDB.csv`, `TitlesDB_PS1.csv`, `TitlesDB_PS2.csv`, `vmc_groups.list` written by [CosmicScale](https://github.com/CosmicScale)
+- `PSBBN-Definitive-Patch.sh`, `Setup.sh`, `PSBBN-Installer.sh`, `HOSDMenu-Installer.sh`, `Game-Installer.sh`, `Media-Installer.sh`, `music-installer.py`, `psmbuild.py`, `Extras.sh`, `art_downloader.py`, `list-builder.py`, `list-sorter.py`, `txt_to_icon_sys.py`, `ps2iconmaker.sh`, `AppDB.csv`, `TitlesDB_PS1.csv`, `TitlesDB_PS2.csv`, `ps1_vmc_groups.list`, `POP-game-fixes.list` written by [CosmicScale](https://github.com/CosmicScale)
 - `PSBBN-Launcher-For-Windows.ps1` written by Yornn
 - `icon_sys_to_txt.py` written by [NathanNeurotic (Ripto)](https://github.com/NathanNeurotic)
 - VMC and PSBBN 3D icons designed by Yornn
@@ -1221,6 +1220,7 @@ Disable DNAS Authentication:
 - Contains code from [`list_builder.py`](https://github.com/sync-on-luma/xebplus-neutrino-loader-plugin/blob/main/List%20Builder/list_builder.py) from [XEB+ neutrino Launcher Plugin](https://github.com/sync-on-luma/xebplus-neutrino-loader-plugin) by [sync-on-luma](https://github.com/sync-on-luma)
 - Contains code from [`ps2iconmaker.sh`](https://github.com/CosmicScale/HDD-OSD-Icon-Database/issues/1#issuecomment-2852499188) by [Sakitoshi](https://github.com/Sakitoshi)
 - Contains data from [`TitlesDB_PS1_English.txt`](https://github.com/GDX-X/PFS-BatchKit-Manager/blob/main/PFS-BatchKit-Manager/BAT/TitlesDB/TitlesDB_PS1_English.txt) and [`TitlesDB_PS2_English.txt`](https://github.com/GDX-X/PFS-BatchKit-Manager/blob/main/PFS-BatchKit-Manager/BAT/TitlesDB/TitlesDB_PS2_English.txt) from the [PFS-BatchKit-Manager](https://github.com/GDX-X/PFS-BatchKit-Manager) by [GDX-X](https://github.com/GDX-X)
+- Contains data from [`vmc_groups.list`](https://github.com/sync-on-luma/xebplus-neutrino-loader-plugin/blob/main/List%20Builder/vmc_groups.list) from [XEB+ neutrino Launcher Plugin](https://github.com/sync-on-luma/xebplus-neutrino-loader-plugin) by [sync-on-luma](https://github.com/sync-on-luma)
 
 **This software uses the following PS2 homebrew projects:**
 - [PSBBN Art Database](https://github.com/CosmicScale/psbbn-art-database) created and maintained by [CosmicScale](https://github.com/CosmicScale)
