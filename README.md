@@ -591,7 +591,7 @@ It is **recommended** to use a **fat PS2 console with an expansion bay** (**SCPH
 
 When using an official Sony Network Adapter, I would highly recommend installing a **Kaico** or **BitFunx IDE to SATA Upgrade Kit**.
 
-**PSBBN** is also compatible with the **PS2 Slim SCPH-700xx** model with an **[IDE Resurrector](https://gusse.in/shop/ps2-modding-parts/ide-resurrector-origami-v0-7-flex-cable-for-ps2-slim-spch700xx/)** or similar hardware mod, as well as **SCPH-10000 to SCPH-18000** models with an **official external HDD enclosure**. **[Additional setup is required for these consoles](#early-scph-10000–18000-and-slim-scph-700xx-consoles)**.
+**PSBBN** is also compatible with the **PS2 Slim SCPH-700xx** model with an **[IDE Resurrector](https://gusse.in/shop/ps2-modding-parts/ide-resurrector-origami-v0-7-flex-cable-for-ps2-slim-spch700xx/)** or similar hardware mod, as well as **SCPH-10000 to SCPH-18000** models with an **official external HDD enclosure**. **[Additional setup is required for these consoles](#early-scph-1000018000-and-slim-scph-700xx-consoles)**.
 
 You will also need an HDD/SSD for your PS2 that is at least 32 GB, ideally between 256 GB and 2 TB. A SATA SSD is also highly recommended. The improved random access speed over a HDD really makes a big difference to the responsiveness of the PSBBN interface. To perform the installation, connect the HDD/SSD to your PC either directly via SATA or through a USB adapter.
 
@@ -1061,7 +1061,7 @@ If games fail to launch from the [PSBBN Game Collection](#game-collection) or [H
 4. Ensure the network or HDD adapter and drive are securely connected to the console
 5. If using a SATA mod, make sure it has been installed correctly
 6. Re-run the [Game Installer](#install-games-and-apps) and select the alternative game launcher ([OPL](#open-ps2-loader-opl) or [NHDDL](#nhddl))
-7. Try using a different IDE converter or SATA mod on your console
+7. If your console has an IDE converter or SATA mod installed, try using a different converter/mod.
 8. Try using a different official Sony Network Adapter or 3rd-party HDD adapter
 9. Try a different PS2 console
 

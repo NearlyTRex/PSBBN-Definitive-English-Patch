@@ -79,7 +79,7 @@ body:
         4. Ensure the network or HDD adapter and drive are securely connected to the console
         5. If using a SATA mod, make sure it has been installed correctly
         6. Re-run the Game Installer and select the alternative game launcher (OPL or NHDDL)
-        7. Try using a different IDE converter or SATA mod on your console
+        7. If your console has an IDE converter or SATA mod installed, try using a different converter/mod.
         8. Try using a different official Sony Network Adapter or 3rd-party HDD adapter
         9. Try a different PS2 console
 
