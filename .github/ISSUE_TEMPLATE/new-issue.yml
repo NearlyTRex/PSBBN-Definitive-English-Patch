@@ -85,7 +85,17 @@ body:
 
         ---
 
-        ✅ **If you have tried the relevant steps and the issue persists, continue below.**
+        ✅ **If you have tried the relevant steps and the problem persists, check for an existing issue. If none exists, continue below to open a new issue.**  
+        Please include all relevant log files:
+        - `setup.log`
+        - `PSBBN-installer.log`
+        - `hosdmenu.log`
+        - `game-installer.log`
+        - `extras.log`
+        - `media.log`
+
+        Linux users can find these log files in `PSBBN-Definitive-Project/logs`. Windows users can find these log files in the same folder where their games and media are stored.
+
   - type: textarea
     id: issue
     attributes:

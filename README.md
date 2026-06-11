@@ -1065,6 +1065,18 @@ If games fail to launch from the [PSBBN Game Collection](#game-collection) or [H
 8. Try using a different official Sony Network Adapter or 3rd-party HDD adapter
 9. Try a different PS2 console
 
+## Reporting issues
+If you have tried the relevant steps above and the problem persists, check for an existing issue or open a new one [here](https://github.com/CosmicScale/PSBBN-Definitive-Project/issues).  
+Please include all relevant log files:
+- `setup.log`
+- `PSBBN-installer.log`
+- `hosdmenu.log`
+- `game-installer.log`
+- `extras.log`
+- `media.log`
+
+Linux users can find these log files in `PSBBN-Definitive-Project/logs`. Windows users can find these log files in the same folder where their games and media are stored.
+
 # Known Issues
 - Instances in feega where some Japanese text couldn't be translated due to it being hard-coded in an encrypted file. Atok software has not been translated.  
 - MiniDisc support is broken as of patch version 2.10 and above. I hope to fix this in a future update  
